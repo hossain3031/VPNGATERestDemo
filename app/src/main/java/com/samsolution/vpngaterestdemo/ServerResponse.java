@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
 
-public class ServerResponsList {
+public class ServerResponse {
 
     @SerializedName("results")
     @Expose
