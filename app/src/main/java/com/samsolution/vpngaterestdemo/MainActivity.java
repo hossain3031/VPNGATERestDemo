@@ -1,20 +1,19 @@
 package com.samsolution.vpngaterestdemo;
 
-import android.os.Build;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
-import android.widget.Button;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import java.util.Base64;
+import java.util.ArrayList;
+import java.util.List;
 
-import okhttp3.OkHttpClient;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -24,12 +23,16 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
-    String encodedToken;
+    String encodedToken = "QklseUVlTHRYTTdEUThYTTdEUThiZVA1Unh5RWVMdHdBQUFBRXdBQUFBRUdiZVA1UnhHQkls";
+    ListView listView;
+    ServerResponse server;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        listView = findViewById(R.id.listView);
 
         Gson gson = new GsonBuilder().setLenient().create();
         Retrofit retrofit = new Retrofit.Builder()
@@ -37,27 +40,34 @@ public class MainActivity extends AppCompatActivity {
                 .baseUrl(Api.BASE_URL)
                 .build();
 
-        Api api = retrofit.create(Api.class);
+        List<String> list;
 
-        String tokenValue = getResources().getString(R.string.token);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            encodedToken = Base64.getEncoder().encodeToString(tokenValue.getBytes());
-        }
+        Api api = retrofit.create(Api.class);
 
         Call<ServerResponse> call = api.getServerResult(encodedToken);
 
-
+        final List<String> finalList = new ArrayList<>();
         call.enqueue(new Callback<ServerResponse>() {
             @Override
             public void onResponse(@NonNull Call<ServerResponse> call, @NonNull Response<ServerResponse> response) {
                 Toast.makeText(MainActivity.this, "OK", Toast.LENGTH_SHORT).show();
                 Log.i(TAG, "onResponse: " + response.message());
 
-                ServerResponse server = response.body();
+                server = response.body();
 
-                if (server != null){
-                    for (Result result : server.getResults()){
-                        Log.i("sever", result.getHostName());
+
+                Toast.makeText(MainActivity.this, " ", Toast.LENGTH_SHORT).show();
+
+                if (server != null) {
+                    for (Result result : server.getResults()) {
+                        Log.i("server", result.getHostName());
+                        Log.i("server", result.getIP());
+                        Log.i("server", result.getScore());
+                        Log.i("server", result.getLatency());
+                        Log.i("server", result.getCountryLong());
+                        Log.i("server", result.getCountryShort());
+
+                        finalList.add(result.getCountryLong());
                     }
                 }
             }
@@ -68,5 +78,9 @@ public class MainActivity extends AppCompatActivity {
                 Log.i(TAG, "onFailure: " + t.getMessage());
             }
         });
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getApplicationContext(), android.R.layout.activity_list_item, finalList);
+        listView.setAdapter(adapter);
+
     }
 }
