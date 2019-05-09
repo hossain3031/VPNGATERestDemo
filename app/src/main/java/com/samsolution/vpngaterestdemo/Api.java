@@ -1,3 +1,5 @@
+
+
 package com.samsolution.vpngaterestdemo;
 
 import retrofit2.Call;
@@ -13,3 +15,4 @@ public interface Api {
     Call<ServerResponse> getServerResult(@Query(value = "token", encoded=true) String token);
 
 }
+
